@@ -43,6 +43,11 @@ export class TrackService {
     return this.trackRepository.save(updatedTrack);
   }
 
+  async getByAlbumId(albumId: string): Promise<Track[]> {
+    const tracks = await this.findAll();
+    return tracks.filter((track) => track.albumId === albumId);
+  }
+
   async remove(id: string) {
     await this.findOne(id);
     await this.trackRepository.delete(id);
