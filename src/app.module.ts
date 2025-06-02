@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './users/user.module';
 import { ConfigModule } from '@nestjs/config';
+import { TrackModule } from './track/track.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
     }),
     UserModule,
+    TrackModule,
   ],
   controllers: [AppController],
   providers: [AppService],

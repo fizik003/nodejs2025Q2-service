@@ -1,10 +1,9 @@
 import { User } from './entities/user.entity';
-import { randomUUID } from 'crypto';
 
 export class UserRepository {
   private users: User[] = [
     {
-      id: randomUUID(),
+      id: '114bf43a-d10d-4caa-9a69-1ab7b9f0c297',
       login: 'user1',
       password: 'password1',
       version: 1,
@@ -12,7 +11,7 @@ export class UserRepository {
       updatedAt: Date.now(),
     },
     {
-      id: randomUUID(),
+      id: 'fdaf407a-6ff7-4963-a242-b6f5c72967da',
       login: 'user2',
       password: 'password2',
       version: 1,
