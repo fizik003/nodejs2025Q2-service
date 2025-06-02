@@ -48,6 +48,11 @@ export class TrackService {
     return tracks.filter((track) => track.albumId === albumId);
   }
 
+  async getByArtistId(artistId: string): Promise<Track[]> {
+    const tracks = await this.findAll();
+    return tracks.filter((track) => track.artistId === artistId);
+  }
+
   async remove(id: string) {
     await this.findOne(id);
     await this.trackRepository.delete(id);

@@ -48,12 +48,17 @@ export class AlbumService {
     await this.albumRepository.remove(id);
 
     const tracks = await this.trackService.getByAlbumId(id);
-    tracks.forEach(async (track) => {
+    for (const track of tracks) {
       const updatedTrack: Track = {
         ...track,
         albumId: null,
       };
       await this.trackService.update(track.id, updatedTrack);
-    });
+    }
+  }
+
+  async getByArtistId(artistId: string): Promise<Album[]> {
+    const albums = await this.findAll();
+    return albums.filter((album) => album.artistId === artistId);
   }
 }
