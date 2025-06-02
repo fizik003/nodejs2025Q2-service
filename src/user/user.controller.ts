@@ -13,7 +13,7 @@ import { UsersService } from './user.service'; // Note: Use `UserService` (singu
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 
-@Controller('users')
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UsersService) {}
 
@@ -32,7 +32,7 @@ export class UserController {
     return await this.userService.findOne(id);
   }
 
-  @Put(':id/password') // Endpoint for updating the user's password
+  @Put(':id')
   async updatePassword(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserPasswordDto: UpdateUserPasswordDto,

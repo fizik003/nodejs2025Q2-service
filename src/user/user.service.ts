@@ -12,7 +12,7 @@ import { randomUUID } from 'crypto';
 @Injectable()
 export class UsersService {
   constructor(private readonly userRepository: UserRepository) {}
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
     const { login, password } = createUserDto;
     const newUser: User = {
       login,
@@ -22,8 +22,9 @@ export class UsersService {
       updatedAt: Date.now(),
       version: 1,
     };
+    await this.userRepository.save(newUser);
 
-    return this.userRepository.save(newUser);
+    return this.findOne(newUser.id);
   }
 
   async findAll(): Promise<Omit<User, 'password'>[]> {
