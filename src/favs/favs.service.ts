@@ -5,13 +5,10 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { CreateFavDto } from './dto/create-fav.dto';
-import { UpdateFavDto } from './dto/update-fav.dto';
 import { FavsRepository } from './favs.repository';
 import { TrackService } from 'src/track/track.service';
 import { ArtistService } from 'src/artist/artist.service';
 import { AlbumService } from 'src/album/album.service';
-import { Track } from 'src/track/entities/track.entity';
 import { Fav, FavsResponseI } from './entities/fav.entity';
 
 @Injectable()
