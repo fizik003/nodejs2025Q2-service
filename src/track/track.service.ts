@@ -1,9 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { TrackRepository } from './track.repository';
 import { Track } from './entities/track.entity';
 import { randomUUID } from 'crypto';
+import { FavsService } from 'src/favs/favs.service';
 
 @Injectable()
 export class TrackService {
