@@ -4,10 +4,15 @@ import { UpdateTrackDto } from './dto/update-track.dto';
 import { TrackRepository } from './track.repository';
 import { Track } from './entities/track.entity';
 import { randomUUID } from 'crypto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EVENTS } from 'src/shared/constnats/events';
 
 @Injectable()
 export class TrackService {
-  constructor(private readonly trackRepository: TrackRepository) {}
+  constructor(
+    private readonly trackRepository: TrackRepository,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   async create(createTrackDto: CreateTrackDto) {
     const { albumId, artistId, duration, name } = createTrackDto;
@@ -56,5 +61,6 @@ export class TrackService {
   async remove(id: string) {
     await this.findOne(id);
     await this.trackRepository.delete(id);
+    this.eventEmitter.emit(EVENTS.TRACK.DELETED, id);
   }
 }

@@ -4,16 +4,14 @@ import { UpdateArtistDto } from './dto/update-artist.dto';
 import { ArtistRepository } from './artist.repository';
 import { randomUUID } from 'crypto';
 import { Artist } from './entities/artist.entity';
-import { TrackService } from 'src/track/track.service';
-import { Track } from 'src/track/entities/track.entity';
-import { AlbumService } from 'src/album/album.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EVENTS } from 'src/shared/constnats/events';
 
 @Injectable()
 export class ArtistService {
   constructor(
     private readonly artistRepository: ArtistRepository,
-    private readonly trackService: TrackService,
-    private readonly albumService: AlbumService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(createArtistDto: CreateArtistDto) {
@@ -48,16 +46,7 @@ export class ArtistService {
   async remove(id: string) {
     await this.findOne(id);
     await this.artistRepository.delete(id);
-    const tracks = await this.trackService.getByArtistId(id);
-    for (const track of tracks) {
-      const updatedTrack: Track = { ...track, artistId: null };
-      await this.trackService.update(track.id, updatedTrack);
-    }
 
-    const albums = await this.albumService.getByArtistId(id);
-    for (const album of albums) {
-      const updatedAlbum = { ...album, artistId: null };
-      await this.albumService.update(album.id, updatedAlbum);
-    }
+    this.eventEmitter.emit(EVENTS.ARTIST.DELETED, id);
   }
 }

@@ -1,6 +1,4 @@
 import {
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -9,23 +7,17 @@ import { FavsRepository } from './favs.repository';
 import { TrackService } from 'src/track/track.service';
 import { ArtistService } from 'src/artist/artist.service';
 import { AlbumService } from 'src/album/album.service';
-import { Fav, FavsResponseI } from './entities/fav.entity';
 
 @Injectable()
 export class FavsService {
   constructor(
     private readonly favsRepository: FavsRepository,
-    @Inject(forwardRef(() => TrackService))
     private readonly trackService: TrackService,
     private readonly artistService: ArtistService,
     private readonly albumService: AlbumService,
   ) {}
 
-  async getAllFavs(): Promise<Fav> {
-    return this.favsRepository.findAll();
-  }
-
-  async getAll(): Promise<FavsResponseI> {
+  async getAll() {
     const favs = await this.favsRepository.findAll();
     const tracks = Promise.all(
       favs.tracks.map((trackId) => this.trackService.findOne(trackId)),
