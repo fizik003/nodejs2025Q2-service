@@ -1,36 +1,37 @@
-import { Artist } from './entities/artist.entity';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateArtistDto } from './dto/create-artist.dto';
+import { Artist } from '@prisma/client';
+import { UpdateArtistDto } from './dto/update-artist.dto';
 
+@Injectable()
 export class ArtistRepository {
-  private artists: Artist[] = [
-    {
-      id: '7f7be693-ccee-44be-b0f1-e7884e616239',
-      name: 'Artist1',
-      grammy: true,
-    },
-    {
-      id: 'c537a02b-4fbc-4cfa-94cb-32d18635a0a5',
-      name: 'Artist2',
-      grammy: false,
-    },
-  ];
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createArtisDto: CreateArtistDto): Promise<Artist> {
+    return this.prisma.artist.create({ data: createArtisDto });
+  }
 
   async findAll(): Promise<Artist[]> {
-    return this.artists;
+    return this.prisma.artist.findMany();
   }
-  async findById(id: string): Promise<Artist> {
-    return this.artists.find((artist) => artist.id === id);
+
+  async findOne(id: string): Promise<Artist> {
+    return this.prisma.artist.findUnique({
+      where: { id },
+    });
   }
-  async save(artist: Artist): Promise<Artist> {
-    const artistIndex = this.artists.findIndex(({ id }) => id === artist.id);
-    if (artistIndex === -1) {
-      this.artists.push(artist);
-    }
-    this.artists[artistIndex] = artist;
-    return artist;
+
+  async update(id: string, updateArtistDto: UpdateArtistDto): Promise<Artist> {
+    return this.prisma.artist.update({
+      where: { id },
+      data: updateArtistDto,
+    });
   }
-  async delete(id: string): Promise<boolean> {
-    const countArtistsBeforeDelete = this.artists.length;
-    this.artists = this.artists.filter((artist) => artist.id !== id);
-    return this.artists.length < countArtistsBeforeDelete;
+
+  async remove(id: string): Promise<Artist> {
+    return this.prisma.artist.delete({
+      where: { id },
+    });
   }
 }
