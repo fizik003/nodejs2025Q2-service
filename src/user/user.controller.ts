@@ -12,6 +12,18 @@ import {
 import { UsersService } from './user.service'; // Note: Use `UserService` (singular) to match your implementation
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { plainToInstance } from 'class-transformer';
+import { UserDto } from './dto/user.dto';
+import { User } from '@prisma/client';
+
+function removePasswordFromResponse<T extends User | User[]>(
+  users: T,
+): T extends User[] ? UserDto[] : UserDto {
+  const result = plainToInstance(UserDto, users, {
+    excludeExtraneousValues: true,
+  });
+  return result as T extends User[] ? UserDto[] : UserDto;
+}
 
 @Controller('user')
 export class UserController {
@@ -19,17 +31,20 @@ export class UserController {
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
-    return await this.userService.create(createUserDto);
+    const newUser = await this.userService.create(createUserDto);
+    return removePasswordFromResponse(newUser);
   }
 
   @Get()
-  async findAll() {
-    return await this.userService.findAll();
+  async findAll(): Promise<UserDto[]> {
+    const users = await this.userService.findAll();
+    return removePasswordFromResponse(users);
   }
 
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return await this.userService.findOne(id);
+    const user = await this.userService.findOne(id);
+    return removePasswordFromResponse(user);
   }
 
   @Put(':id')
@@ -37,7 +52,11 @@ export class UserController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserPasswordDto: UpdateUserPasswordDto,
   ) {
-    return await this.userService.updateUserPassword(id, updateUserPasswordDto);
+    const updatedUser = await this.userService.updateUserPassword(
+      id,
+      updateUserPasswordDto,
+    );
+    return removePasswordFromResponse(updatedUser);
   }
 
   @Delete(':id')

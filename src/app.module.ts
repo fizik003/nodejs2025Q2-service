@@ -9,6 +9,7 @@ import { AlbumModule } from './album/album.module';
 import { FavsModule } from './favs/favs.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SharedModule } from './shared/shared.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { SharedModule } from './shared/shared.module';
     AlbumModule,
     FavsModule,
     SharedModule,
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

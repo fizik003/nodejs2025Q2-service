@@ -4,52 +4,39 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UserRepository } from './user.repository';
-import { User, UserWithoutPassword } from './entities/user.entity';
+import { UserUpdateInputI } from './entities/user.entity';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
-import { randomUUID } from 'crypto';
+import { UserRepository } from './user.repository';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly userRepository: UserRepository) {}
   async create(createUserDto: CreateUserDto) {
-    const { login, password } = createUserDto;
-    const newUser: User = {
-      login,
-      password,
-      id: randomUUID(),
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      version: 1,
-    };
-    await this.userRepository.save(newUser);
-
-    return this.findOne(newUser.id);
+    return this.userRepository.create(createUserDto);
   }
 
-  async findAll(): Promise<Omit<User, 'password'>[]> {
+  async findAll(): Promise<User[]> {
     const users = await this.userRepository.findAll();
     if (!users) {
       throw new NotFoundException('Users not found');
     }
-    return users.map(this.removePasswordFiled);
+    return users;
   }
 
-  async findOne(id: string): Promise<Omit<User, 'password'>> {
+  async findOne(id: string): Promise<User> {
     const user = await this.userRepository.findById(id);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
 
-    if (user) {
-      return this.removePasswordFiled(user);
-    }
+    return user;
   }
 
   async updateUserPassword(
     id: string,
     updateUserPasswordDto: UpdateUserPasswordDto,
-  ): Promise<UserWithoutPassword> {
+  ): Promise<User> {
     const { newPassword, oldPassword } = updateUserPasswordDto;
     const user = await this.userRepository.findById(id);
     if (!user) {
@@ -60,23 +47,16 @@ export class UsersService {
       throw new ForbiddenException(`Incorrect old password`);
     }
 
-    const updatedUser: User = {
-      ...user,
+    const userUpdateData: UserUpdateInputI = {
       password: newPassword,
       version: user.version + 1,
-      updatedAt: Date.now(),
     };
-    const newUser = await this.userRepository.save(updatedUser);
-    return this.removePasswordFiled(newUser);
+    return this.userRepository.update(id, userUpdateData);
   }
 
   async delete(id: string) {
     await this.findOne(id);
-    await this.userRepository.delete(id);
-  }
-
-  private removePasswordFiled(user: User): UserWithoutPassword {
-    const { password: _, ...resetUserData } = user;
-    return resetUserData;
+    await this.userRepository.remove(id);
+    return true;
   }
 }
