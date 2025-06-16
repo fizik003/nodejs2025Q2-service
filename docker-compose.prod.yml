@@ -1,0 +1,58 @@
+services:
+  migrate:
+    image: nest-app-prod
+    env_file:
+      - ./.env
+    depends_on:
+      - postgres
+      - app
+    command: ["npx", "prisma", "migrate", "deploy"]
+    networks:
+      - app-network
+  app:
+    image: nest-app-prod
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: nest-app-prod
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+  postgres:
+    image: nest-postgres-prod
+    container_name: nest-postgres-prod
+    build:
+      context: .
+      dockerfile: postgres/Dockerfile
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+volumes:
+  pgdata:
+
+networks:
+  app-network:
+    driver: bridge

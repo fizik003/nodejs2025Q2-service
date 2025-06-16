@@ -1,6 +1,14 @@
-version: '3.8'
-
 services:
+  migrate:
+    image: nest-app-prod
+    env_file:
+      - ./.env
+    depends_on:
+      - postgres
+      - app
+    command: ["npx", "prisma", "migrate", "dev"]
+    networks:
+      - app-network
   app:
     build:
       context: .
@@ -19,6 +27,7 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
+      - DATABASE_URL=${DATABASE_URL}
     depends_on:
       - postgres
     volumes:
@@ -28,8 +37,10 @@ services:
       - app-network
 
   postgres:
-    image: postgres:15-alpine
     container_name: nest-postgres
+    build:
+      context: .
+      dockerfile: postgres/Dockerfile
     restart: always
     environment:
       - POSTGRES_USER=${DB_USER}
