@@ -215,6 +215,7 @@ describe('Favorites (e2e)', () => {
         .set(commonHeaders);
 
       expect(response.status).toBe(StatusCodes.OK);
+
       expect(response.body.artists).toContainEqual({
         id: artistId,
         name: createArtistDto.name,
